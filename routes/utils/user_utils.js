@@ -1,23 +1,23 @@
 const DButils = require("./DButils");
 const recipes_utils = require("./recipes_utils");
 
-async function markAsFavorite(username, recipe_id){
-    await DButils.execQuery(`INSERT INTO FavoriteRecipes VALUES ('${username}',${recipe_id})`);
+async function markAsFavorite(user_name, recipe_id){
+    await DButils.execQuery(`INSERT INTO favorite_recipes VALUES ('${user_name}',${recipe_id})`);
 }
 
-async function getFavoriteRecipes(username){
-    const favorites = await DButils.execQuery(`SELECT recipe_id FROM FavoriteRecipes WHERE username=='${username}'`);
+async function getFavoriteRecipes(user_name){
+    const favorites = await DButils.execQuery(`SELECT recipe_id FROM favorite_recipes WHERE user_name=='${user_name}'`);
     const recipes = [];
-    for(let i = 0; i < length(favorites); i++) {
+    for(let i = 0; i < favorites.length; i++) {
         recipes.push(await recipes_utils.getRecipeDetails(favorites[i]));
     }
     return favorites;
 }
 
-async function getLastWatchedRecipes(username){
-    const lastWatched = await DButils.execQuery(`SELECT recipe_id FROM user_view_recipes WHERE username=='${username}' ORDER BY view_time DESC`)
+async function getLastWatchedRecipes(user_name){
+    const lastWatched = await DButils.execQuery(`SELECT recipe_id FROM user_view_recipes WHERE username=='${user_name}' ORDER BY view_time DESC`)
     const recipes = [];
-    for(let i = 0; i < length(lastWatched); i++) {
+    for(let i = 0; i < lastWatched.length; i++) {
         recipes.push(await recipes_utils.getRecipeDetails(lastWatched[i]));
     }
     return recipes;
