@@ -24,8 +24,8 @@ async function getRecipeInformation(recipe_id) {
 
 async function getRecipeDetails(recipe_id) {
     let recipe_info = await getRecipeInformation(recipe_id);
-    let { id, title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, glutenFree } = recipe_info.data;
-
+    let { id, title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, glutenFree, extendedIngredients, instructions, servings } = recipe_info.data;
+    const ingredients = {list: extractIngredients(extendedIngredients)};
     return {
         id: id,
         title: title,
@@ -35,35 +35,86 @@ async function getRecipeDetails(recipe_id) {
         vegan: vegan,
         vegetarian: vegetarian,
         glutenFree: glutenFree,
+        ingredients: ingredients,
+        instructions: instructions,
+        servings: servings
     }
 }
 
 async function getRandomRecipes() {
     const response = await axios.get(`${api_domain}/random`, {
         params: {
-            number: 3,
+            number: 10,
             apiKey: process.env.spooncular_apiKey
         }
     });
-    return response;
+    return extractPreviewRecipesData(response.data);
 }
 
-async function searchRecipesByName(title, number = 5) {
+async function getRandomThreeRecipes() {
+    const randomRecipes = await getRandomRecipes();
+    const filteredRandomRecipes = randomRecipes.recipes.filter((element) => (element.instructions != "") && element.image && element.servings);
+    if (filteredRandomRecipes.length < 3) {
+        return getRandomThreeRecipes();
+    }
+    return extractPreviewRecipesData(filteredRandomRecipes);
+}
+
+async function searchRecipesByName(title, number = 5, cuisine, diet, intolerances) {
     const response = await axios.get(`${api_domain}/complexSearch`, {
         params: {
             query: title,
             apiKey: process.env.spooncular_apiKey,
             addRecipeInformation: true,
-            number: number
+            number: number,
+            cuisine: cuisine,
+            diet: diet,
+            intolerances: intolerances
         }
     });
-    return response;
+    return extractPreviewRecipesData(response.data);
+}
+
+async function getRecipesPreview(recipeIds) {
+    const response = await axios.get(`${api_domain}/informationBulk`, {
+        params: {
+            ids: recipeIds.join(),
+            apiKey: process.env.spooncular_apiKey,
+            includeNutrition: false
+        }
+    });
+    return extractPreviewRecipesData(response.data);
+}
+
+
+const extractPreviewRecipesData = (recipes) => {
+    const reducedNonRelevance = [];
+    for (let i = 0; i < recipes.length; i++){
+        let { id, title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, glutenFree} = recipes[i];
+        reducedNonRelevance.push({
+            id: id,
+            title: title,
+            readyInMinutes: readyInMinutes,
+            image: image,
+            popularity: aggregateLikes,
+            vegan: vegan,
+            vegetarian: vegetarian,
+            glutenFree: glutenFree,
+        });
+    }
+    return reducedNonRelevance;
+}
+const extractIngredients = (extendedIngredients) => {
+    const ingredients = [];
+    for (let i = 0; i < extendedIngredients.length; i++) {
+        ingredients.push(extendedIngredients[i].original);
+    }
+    return ingredients;
 }
 
 
 
-
-
+exports.getRecipesPreview = getRecipesPreview;
 exports.searchRecipesByName = searchRecipesByName;
 exports.getRecipeDetails = getRecipeDetails;
-exports.getRandomRecipes = getRandomRecipes;
+exports.getRandomThreeRecipes = getRandomThreeRecipes;

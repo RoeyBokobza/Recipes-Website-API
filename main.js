@@ -30,8 +30,8 @@ app.use(express.static(path.join(__dirname, "dist")));
 //remote:
 // app.use(express.static(path.join(__dirname, '../assignment-3-3-basic/dist')));
 app.get("/",function(req,res)
-{ 
-  //remote: 
+{
+  //remote:
   // res.sendFile(path.join(__dirname, '../assignment-3-3-basic/dist/index.html'));
   //local:
   res.sendFile(__dirname+"/index.html");
@@ -59,11 +59,11 @@ const auth = require("./routes/auth");
 
 //#region cookie middleware
 app.use(function (req, res, next) {
-  if (req.session && req.session.user_id) {
-    DButils.execQuery("SELECT username FROM users")
+  if (req.session && req.session.user_name) {
+    DButils.execQuery("SELECT user_name FROM users")
       .then((users) => {
-        if (users.find((x) => x.user_id === req.session.user_id)) {
-          req.user_id = req.session.user_id;
+        if (users.find((x) => x.user_id === req.session.user_name)) {
+          req.user_name = req.session.user_name;
         }
         next();
       })
