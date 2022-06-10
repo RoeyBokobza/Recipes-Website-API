@@ -59,9 +59,9 @@ paths:
               $ref: '#/components/schemas/login'
       responses:
         "200":
-          description: search results matching criteria
-        "400":
-          description: bad input parameter
+          description: User was found in the DB and authenitcated successfully. The session ID is returned in a cookie named `session`.  You should include this cookie in subsequent requests
+        "401":
+          description: Authentication failed
   /users/favorites:
     get:
       tags:
@@ -71,9 +71,9 @@ paths:
         get all favorite recipes of a user
       responses:
         "200":
-          description: search results matching criteria
-        "400":
-          description: bad input parameter
+          description: user's favorite recipes returned
+        "401":
+          description: user is not authorized
     post:
       tags:
       - users
@@ -87,10 +87,10 @@ paths:
             schema:
               $ref: '#/components/schemas/recipe_id'
       responses:
-        "200":
-          description: search results matching criteria
-        "400":
-          description: bad input parameter
+        "201":
+          description: recipe marked as favorite
+        "401":
+          description: user is not authorized
   /users/my_recipes:
     get:
       tags:
@@ -100,9 +100,9 @@ paths:
         get all user recipes
       responses:
         "200":
-          description: search results matching criteria
-        "400":
-          description: bad input parameter
+          description: all favorite recipes returned
+        "401":
+          description: user is not authorized
   /users/last_watched:
     get:
       tags:
@@ -112,9 +112,9 @@ paths:
         get last watched recipes of a user
       responses:
         "200":
-          description: search results matching criteria
-        "400":
-          description: bad input parameter
+          description: user's last watched recipes returned
+        "401":
+          description: user is not authorized
   /users/add_recipe:
     post:
       tags:
@@ -129,10 +129,12 @@ paths:
             schema:
               $ref: '#/components/schemas/recipe'
       responses:
-        "200":
+        "201":
           description: user recipe added successfully
-        "404":
-          description: Home page not found
+        "400":
+          description: parameters are wrong
+        "401":
+          description: user is not authorized
   /recipes/random:
     get:
       tags:
@@ -140,9 +142,9 @@ paths:
       summary: get three random recipes
       responses:
         "200":
-          description: search results return successfully
+          description: random results return successfully
         "404":
-          description: Home page not found
+          description: no recipes found
   /details/{recipeId}:
     get:
       tags:
@@ -167,7 +169,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/recipe'
         "404":
-          description: recipeId is not exists
+          description: recipe id not found
   /recipes/search:
     get:
       tags:
@@ -230,8 +232,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/recipe_preview'
-        "404":
-          description: Home page not found
 components:
   schemas:
     recipe_preview:

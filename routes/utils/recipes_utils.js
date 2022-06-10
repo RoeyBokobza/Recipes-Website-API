@@ -3,6 +3,7 @@ const { response } = require("express");
 const res = require("express/lib/response");
 const api_domain = "https://api.spoonacular.com/recipes";
 
+const failMes = "failure"
 
 
 /**
@@ -17,6 +18,8 @@ async function getRecipeInformation(recipe_id) {
             includeNutrition: false,
             apiKey: process.env.spooncular_apiKey
         }
+    }).catch(function (error) {
+        return error;
     });
 }
 
@@ -24,20 +27,25 @@ async function getRecipeInformation(recipe_id) {
 
 async function getRecipeDetails(recipe_id) {
     let recipe_info = await getRecipeInformation(recipe_id);
-    let { id, title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, glutenFree, extendedIngredients, instructions, servings } = recipe_info.data;
-    const ingredients = {list: extractIngredients(extendedIngredients)};
-    return {
-        id: id,
-        title: title,
-        readyInMinutes: readyInMinutes,
-        image: image,
-        popularity: aggregateLikes,
-        vegan: vegan,
-        vegetarian: vegetarian,
-        glutenFree: glutenFree,
-        ingredients: ingredients,
-        instructions: instructions,
-        servings: servings
+    try {
+        let { id, title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, glutenFree, extendedIngredients, instructions, servings } = recipe_info.data;
+        const ingredients = extractIngredients(extendedIngredients);
+        return {
+            id: id,
+            title: title,
+            readyInMinutes: readyInMinutes,
+            image: image,
+            popularity: aggregateLikes,
+            vegan: vegan,
+            vegetarian: vegetarian,
+            glutenFree: glutenFree,
+            ingredients: ingredients,
+            instructions: instructions,
+            servings: servings
+        }
+    } catch (err) {
+        console.error(err);
+        return failMes;
     }
 }
 
@@ -48,16 +56,23 @@ async function getRandomRecipes() {
             apiKey: process.env.spooncular_apiKey
         }
     });
-    return extractPreviewRecipesData(response.data);
+    try {
+        let previewData = extractPreviewRecipesData(response.data.recipes);
+        return previewData;
+    } catch (err) {
+        console.error(err);
+        return failMes;
+    }
+
 }
 
 async function getRandomThreeRecipes() {
     const randomRecipes = await getRandomRecipes();
-    const filteredRandomRecipes = randomRecipes.recipes.filter((element) => (element.instructions != "") && element.image && element.servings);
+    const filteredRandomRecipes = randomRecipes.filter((element) => (element.instructions != "") && element.image != "");
     if (filteredRandomRecipes.length < 3) {
         return getRandomThreeRecipes();
     }
-    return extractPreviewRecipesData(filteredRandomRecipes);
+    return [filteredRandomRecipes[0], filteredRandomRecipes[1], filteredRandomRecipes[2]]
 }
 
 async function searchRecipesByName(title, number = 5, cuisine, diet, intolerances) {
@@ -72,7 +87,7 @@ async function searchRecipesByName(title, number = 5, cuisine, diet, intolerance
             intolerances: intolerances
         }
     });
-    return extractPreviewRecipesData(response.data);
+    return extractPreviewRecipesData(response.data.results);
 }
 
 async function getRecipesPreview(recipeIds) {
@@ -89,8 +104,8 @@ async function getRecipesPreview(recipeIds) {
 
 const extractPreviewRecipesData = (recipes) => {
     const reducedNonRelevance = [];
-    for (let i = 0; i < recipes.length; i++){
-        let { id, title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, glutenFree} = recipes[i];
+    for (let i = 0; i < recipes.length; i++) {
+        let { id, title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, glutenFree } = recipes[i];
         reducedNonRelevance.push({
             id: id,
             title: title,
@@ -112,8 +127,18 @@ const extractIngredients = (extendedIngredients) => {
     return ingredients;
 }
 
+// async function getRecipeAnalyzeSteps(recipe_id) {
+//     const response = await axios.get(`${api_domain}/${recipe_id}/analyzedInstructions`, {
+//         params: {
+//             apiKey: process.env.spooncular_apiKey,
+//             stepBreakdown: true
+//         }
+//     });
+//     return response.data
+// }
 
 
+// exports.getRecipeAnalyzeSteps = getRecipeAnalyzeSteps
 exports.getRecipesPreview = getRecipesPreview;
 exports.searchRecipesByName = searchRecipesByName;
 exports.getRecipeDetails = getRecipeDetails;

@@ -13,30 +13,36 @@ router.get("/", (req, res) => res.send("im here"));
 router.get("/details/:recipeId", async (req, res, next) => {
   try {
     const recipe = await recipes_utils.getRecipeDetails(req.params.recipeId);
-    res.send(recipe);
-    if (req.session && req.session.user_name) {
+    if (recipe === "failure") {
+      throw { status: 404, message: "recipe id didn't found" };
+    } else {
+      res.status(200).send(recipe);
+      if (req.session && req.session.user_name) {
         user_utils.markAsWatched(req.session.user_name, req.params.recipeId);
+      }
     }
   } catch (error) {
     next(error);
   }
 });
 
-router.get("/random",async (req,res,next)=>{
-  try{
+router.get("/random", async (req, res, next) => {
+  try {
     const randoms = await recipes_utils.getRandomThreeRecipes();
-    // console.log(randoms);
-    res.send(randoms);
-  } catch(error){
+    if(randoms === "failure"){
+      throw { status: 404, message: "random recipes not found" };
+    }
+    res.status(200).send(randoms);
+  } catch (error) {
     next(error);
   }
 });
 
-router.get("/search",async (req,res,next)=>{
-  try{
+router.get("/search", async (req, res, next) => {
+  try {
     const recipes = await recipes_utils.searchRecipesByName(req.query.title, req.query.number, req.query.cuisine, req.query.diet, req.query.intolerances);
-    res.send(recipes);
-  } catch(error){
+    res.status(200).send(recipes);
+  } catch (error) {
     next(error);
   }
 });
