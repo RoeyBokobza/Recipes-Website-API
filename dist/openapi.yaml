@@ -225,7 +225,7 @@ paths:
       tags:
       - recipes
       summary: get three random recipes
-      re sponses:
+      responses:
         "200":
           description: three random recipes returned
           content:
@@ -234,7 +234,7 @@ paths:
               $ref: '#/components/schemas/recipe_preview'
         "404":
           description: no recipes found
-  /details/{recipeId}:
+  /recipes/details/{recipeId}:
     get:
       tags:
       - recipes
@@ -279,7 +279,6 @@ paths:
       - name: number
         in: query
         description: The number of recipes to retrieve
-        required: true
         style: form
         explode: true
         schema:
@@ -288,16 +287,13 @@ paths:
       - name: cuisine
         in: query
         description: cuisine to filter
-        required: true
         style: form
-        explode: true
         schema:
           type: string
           example: Italian
       - name: diet
         in: query
         description: diet to filter
-        required: true
         style: form
         explode: true
         schema:
@@ -306,7 +302,6 @@ paths:
       - name: intolerances
         in: query
         description: intolerances to filter
-        required: true
         style: form
         explode: true
         schema:
