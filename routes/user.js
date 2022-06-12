@@ -70,10 +70,8 @@ router.get('/favorites', async (req, res, next) => {
   try {
     const user_name = req.session.user_name;
     let favorite_recipes = {};
-    const recipes_id = await user_utils.getFavoriteRecipes(user_name);
-    let recipes_id_array = [];
-    recipes_id.map((element) => recipes_id_array.push(element.recipe_id)); //extracting the recipe ids into array
-    const results = await recipe_utils.getRecipesPreview(recipes_id_array);
+    const recipes_ids = await user_utils.getFavoriteRecipesIds(user_name);
+    const results = await recipe_utils.getRecipesPreview(recipes_ids);
     res.status(200).send(results);
   } catch (error) {
     next(error);
@@ -101,31 +99,60 @@ router.get('/my_recipes', async (req, res, next) => {
   }
 });
 
+router.get('/my_recipe/:recipe_id', async (req, res, next) => {
+  try {
+    const user_name = req.session.user_name;
+    const myRecipes = await user_utils.getRecipe(user_name, req.params.recipe_id);
+    res.status(200).send(myRecipes);
+  } catch (error) {
+    console.error(error);
+    res.status(404).send("My recipe id: " + req.params.recipe_id + " not found!");
+  }
+});
+
+router.get('/my_family_recipe/:recipe_id', async (req, res, next) => {
+  try {
+    const user_name = req.session.user_name;
+    const myRecipes = await user_utils.getFamilyRecipe(user_name, req.params.recipe_id);
+    res.status(200).send(myRecipes);
+  } catch (error) {
+    console.error(error);
+    res.status(404).send("Family recipe id: " + req.params.recipe_id + " not found!");
+  }
+});
+
+router.get('/my_family_recipes', async (req, res, next) => {
+  try {
+    const user_name = req.session.user_name;
+    const myRecipes = await user_utils.getMyFamilyRecipes(user_name);
+    res.status(200).send(myRecipes);
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.post('/add_recipe', upload.single("image"), async (req, res, next) => {
   try {
-    try {
-      const user_name = req.session.user_name;
-      let recipe_details = {
-        title: req.body.title,
-        readyInMinutes: req.body.readyInMinutes,
-        image: req.file.path,
-        popularity: 0,
-        vegan: req.body.vegan,
-        vegetarian: req.body.vegetarian,
-        glutenFree: req.body.glutenFree,
-        ingredients: req.body.ingredients,
-        instructions: req.body.instructions,
-        servings: req.body.servings
-      }
-    } catch (error) {
-      res.status(400).send("parameters are wrong");
+    console.log(req.file);
+    const user_name = req.session.user_name;
+    let recipe_details = {
+      title: req.body.title,
+      readyInMinutes: req.body.readyInMinutes,
+      image: req.file.path,
+      popularity: 0,
+      vegan: req.body.vegan,
+      vegetarian: req.body.vegetarian,
+      glutenFree: req.body.glutenFree,
+      ingredients: req.body.ingredients,
+      instructions: req.body.instructions,
+      servings: req.body.servings
     }
     await user_utils.addRecipeToDb(user_name, recipe_details);
     res.status(201).send("The Recipe successfully saved to storage");
   } catch (error) {
-    next(error)
+    console.error(error);
+    res.status(400).send("Some parameters are missing");
   }
 });
-
 
 module.exports = router;

@@ -13,23 +13,20 @@ router.get("/", (req, res) => res.send("im here"));
 router.get("/details/:recipeId", async (req, res, next) => {
   try {
     const recipe = await recipes_utils.getRecipeDetails(req.params.recipeId);
-    if (recipe === "failure") {
-      throw { status: 404, message: "recipe id didn't found" };
-    } else {
-      res.status(200).send(recipe);
-      if (req.session && req.session.user_name) {
-        user_utils.markAsWatched(req.session.user_name, req.params.recipeId);
-      }
+    res.status(200).send(recipe);
+    if (req.session && req.session.user_name) {
+      user_utils.markAsWatched(req.session.user_name, req.params.recipeId);
     }
   } catch (error) {
-    next(error);
+    console.error(error);
+    res.status(404).send("Recipe id: " + req.params.recipe_id + " not found!");
   }
 });
 
 router.get("/random", async (req, res, next) => {
   try {
     const randoms = await recipes_utils.getRandomThreeRecipes();
-    if(randoms === "failure"){
+    if (randoms === "failure") {
       throw { status: 404, message: "random recipes not found" };
     }
     res.status(200).send(randoms);

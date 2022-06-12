@@ -19,7 +19,7 @@ async function getRecipeInformation(recipe_id) {
             apiKey: process.env.spooncular_apiKey
         }
     }).catch(function (error) {
-        return error;
+        throw error;
     });
 }
 
@@ -27,25 +27,20 @@ async function getRecipeInformation(recipe_id) {
 
 async function getRecipeDetails(recipe_id) {
     let recipe_info = await getRecipeInformation(recipe_id);
-    try {
-        let { id, title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, glutenFree, extendedIngredients, instructions, servings } = recipe_info.data;
-        const ingredients = extractIngredients(extendedIngredients);
-        return {
-            id: id,
-            title: title,
-            readyInMinutes: readyInMinutes,
-            image: image,
-            popularity: aggregateLikes,
-            vegan: vegan,
-            vegetarian: vegetarian,
-            glutenFree: glutenFree,
-            ingredients: ingredients,
-            instructions: instructions,
-            servings: servings
-        }
-    } catch (err) {
-        console.error(err);
-        return failMes;
+    let { id, title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, glutenFree, extendedIngredients, instructions, servings } = recipe_info.data;
+    const ingredients = extractIngredients(extendedIngredients);
+    return {
+        id: id,
+        title: title,
+        readyInMinutes: readyInMinutes,
+        image: image,
+        popularity: aggregateLikes,
+        vegan: vegan,
+        vegetarian: vegetarian,
+        glutenFree: glutenFree,
+        ingredients: ingredients,
+        instructions: instructions,
+        servings: servings
     }
 }
 
@@ -56,14 +51,8 @@ async function getRandomRecipes() {
             apiKey: process.env.spooncular_apiKey
         }
     });
-    try {
-        let previewData = extractPreviewRecipesData(response.data.recipes);
-        return previewData;
-    } catch (err) {
-        console.error(err);
-        return failMes;
-    }
-
+    let previewData = extractPreviewRecipesData(response.data.recipes);
+    return previewData;
 }
 
 async function getRandomThreeRecipes() {
@@ -127,18 +116,6 @@ const extractIngredients = (extendedIngredients) => {
     return ingredients;
 }
 
-// async function getRecipeAnalyzeSteps(recipe_id) {
-//     const response = await axios.get(`${api_domain}/${recipe_id}/analyzedInstructions`, {
-//         params: {
-//             apiKey: process.env.spooncular_apiKey,
-//             stepBreakdown: true
-//         }
-//     });
-//     return response.data
-// }
-
-
-// exports.getRecipeAnalyzeSteps = getRecipeAnalyzeSteps
 exports.getRecipesPreview = getRecipesPreview;
 exports.searchRecipesByName = searchRecipesByName;
 exports.getRecipeDetails = getRecipeDetails;

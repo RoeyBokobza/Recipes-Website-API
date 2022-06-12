@@ -60,6 +60,13 @@ paths:
       responses:
         "200":
           description: User was found in the DB and authenitcated successfully. The session ID is returned in a cookie named `session`.  You should include this cookie in subsequent requests
+          headers:
+            Set-Cookie:
+              style: simple
+              explode: false
+              schema:
+                type: string
+                example: session=87s97sdhgf279293f8w0e9
         "401":
           description: Authentication failed
   /users/favorites:
@@ -101,8 +108,82 @@ paths:
       responses:
         "200":
           description: all favorite recipes returned
+          content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/recipe_preview'
         "401":
           description: user is not authorized
+  /users/my_recipe/{recipeId}:
+    get:
+      tags:
+      - users
+      summary: get my recipe description by id
+      description: get my recipe description by id
+      parameters:
+      - name: recipeId
+        in: path
+        description: recipe's id
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: data about the recipe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/recipe'
+        "401":
+          description: user is not authorized
+        "404":
+          description: recipe id not found
+
+  /users/my_family_recipes:
+    get:
+      tags:
+      - users
+      summary: get all user family recipes
+      description: |
+        get all user family recipes
+      responses:
+        "200":
+          description: all family recipes returned
+          content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/recipe_preview'
+        "401":
+          description: user is not authorized
+
+  /users/my_family_recipe/{recipeId}:
+    get:
+      tags:
+      - users
+      summary: get my family recipe description by id
+      description: get my family description by id
+      parameters:
+      - name: recipeId
+        in: path
+        description: recipe's id
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: data about the recipe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/recipe'
+        "401":
+          description: user is not authorized
+        "404":
+          description: recipe id not found
   /users/last_watched:
     get:
       tags:
@@ -113,6 +194,10 @@ paths:
       responses:
         "200":
           description: user's last watched recipes returned
+          content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/recipe_preview'
         "401":
           description: user is not authorized
   /users/add_recipe:
@@ -125,9 +210,9 @@ paths:
       requestBody:
         description: Recipe data you want to add
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: '#/components/schemas/recipe'
+              $ref: '#/components/schemas/add_recipe'
       responses:
         "201":
           description: user recipe added successfully
@@ -140,9 +225,13 @@ paths:
       tags:
       - recipes
       summary: get three random recipes
-      responses:
+      re sponses:
         "200":
-          description: random results return successfully
+          description: three random recipes returned
+          content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/recipe_preview'
         "404":
           description: no recipes found
   /details/{recipeId}:
@@ -301,7 +390,7 @@ components:
           type: array
           description: name of the ingredients and their quantity
           items:
-            $ref: '#/components/schemas/ingredient'
+            type: string
         instructions:
           type: string
           description: recipe procces instructions
@@ -310,16 +399,45 @@ components:
         servings:
           type: number
           description: how many dishes comes from this recipe
-    ingredient:
+    add_recipe:
       required:
-      - list
+      - name image readyInMinutes vegan vegetarian glutenFree ingredients instructions servings
       type: object
       properties:
-        list:
+        name:
           type: string
-          description: ingredient name
-          example: ["2 tbsp of salt", "2 tbsp of black pepper"]
-      description: ingredient and quantity object for recipe
+          description: recipe name
+          example: brownies
+        image:
+          type: string
+          description: recipe image
+          format: binary
+        readyInMinutes:
+          type: number
+          description: recipe procces time in minutes
+          example: 2
+        vegan:
+          type: boolean
+          description: if the recipe is vegan or not
+        vegetarian:
+          type: boolean
+          description: if the recipe is vegetarian or not
+        glutenFree:
+          type: boolean
+          description: if the recipe is gluten free
+        ingredients:
+          type: array
+          description: name of the ingredients and their quantity
+          items:
+            type: string
+        instructions:
+          type: string
+          description: recipe procces instructions
+          items:
+            type: string
+        servings:
+          type: number
+          description: how many dishes comes from this recipe
     login:
       required:
       - user_name password

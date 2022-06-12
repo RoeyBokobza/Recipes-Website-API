@@ -5,7 +5,9 @@ var path = require("path");
 var logger = require("morgan");
 const session = require("client-sessions");
 const DButils = require("./routes/utils/DButils");
-var cors = require('cors')
+var cors = require('cors');
+var fs = require('fs');
+const imagesDir = "./images"
 
 var app = express();
 app.use(logger("dev")); //logger
@@ -49,8 +51,7 @@ const corsConfig = {
 app.use(cors(corsConfig));
 app.options("*", cors(corsConfig));
 
-var port = 3000;
-//var port = process.env.PORT || "80"; //local=3000 remote=80
+var port = process.env.PORT || "80"; //local=3000 remote=80
 //#endregion
 const user = require("./routes/user");
 const recipes = require("./routes/recipes");
@@ -62,7 +63,7 @@ app.use(function (req, res, next) {
   if (req.session && req.session.user_name) {
     DButils.execQuery("SELECT user_name FROM users")
       .then((users) => {
-        if (users.find((x) => x.user_id === req.session.user_name)) {
+        if (users.find((x) => x.user_name === req.session.user_name)) {
           req.user_name = req.session.user_name;
         }
         next();
@@ -88,7 +89,9 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500).send({ message: err.message, success: false });
 });
 
-
+if (!fs.existsSync(imagesDir)){
+  fs.mkdirSync(imagesDir);
+}
 
 const server = app.listen(port, () => {
   console.log(`Server listen on port ${port}`);
