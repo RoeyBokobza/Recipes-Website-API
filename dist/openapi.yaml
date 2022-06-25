@@ -316,6 +316,25 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/recipe_preview'
+  /users/download:
+    get:
+      tags:
+      - users
+      summary: download user recipe image
+      description: |
+        dwonload image
+      parameters:
+      - name: image
+        in: query
+        description: the image path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: image return successfuly
+        "404":
+          description: image not found
 components:
   schemas:
     recipe_preview:
@@ -396,10 +415,10 @@ components:
           description: how many dishes comes from this recipe
     add_recipe:
       required:
-      - name image readyInMinutes vegan vegetarian glutenFree ingredients instructions servings
+      - title image readyInMinutes vegan vegetarian glutenFree ingredients instructions servings
       type: object
       properties:
-        name:
+        title:
           type: string
           description: recipe name
           example: brownies

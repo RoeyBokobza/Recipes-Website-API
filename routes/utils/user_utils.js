@@ -37,14 +37,17 @@ async function getRecipeIngredients(id) {
 }
 
 async function getRecipe(user_name, id) {
-    let myRecipe = await DButils.execQuery(`SELECT * FROM user_recipes WHERE user_name='${user_name}' AND id=${id}`);
-    myRecipe.ingredients = await getRecipeIngredients(myRecipe[0].id);
+    let myRecipeResponse = await DButils.execQuery(`SELECT * FROM user_recipes WHERE user_name='${user_name}' AND id=${id}`);
+    let myRecipe = myRecipeResponse[0];
+    myRecipe.ingredients = await getRecipeIngredients(myRecipe.id);
+    console.log(myRecipe)
     return myRecipe;
 }
 
 async function getFamilyRecipe(user_name, id) {
     let myRecipe = await DButils.execQuery(`SELECT * FROM user_family_recipes WHERE user_name='${user_name}' AND id=${id}`);
-    myRecipe.ingredients = await getRecipeIngredients(myRecipe[0].id);
+    const recipe = myRecipe[0];
+    recipe.ingredients = await getRecipeIngredients(recipe.id);
     return myRecipe;
 }
 
@@ -54,7 +57,7 @@ async function getFavoriteRecipesIds(user_name) {
     for (let i = 0; i < favorites.length; i++) {
         recipes.push(favorites[i].recipe_id);
     }
-    return favorites;
+    return recipes;
 }
 
 async function getLastWatchedRecipesIds(user_name) {
@@ -81,16 +84,17 @@ async function addRecipeToDb(user_name, recipe) {
 const extractPreviewRecipesData = (recipes) => {
     const reducedNonRelevance = [];
     for (let i = 0; i < recipes.length; i++) {
-        let { id, title, readyInMinutes, image, popularity, vegan, vegetarian, glutenFree } = recipes[i];
+        let { id, title, readyInMinutes, image, popularity, vegan, vegetarian, glutenFree, servings } = recipes[i];
         reducedNonRelevance.push({
             id: id,
             title: title,
             readyInMinutes: readyInMinutes,
-            image: image,
+            image: image.replace(/\\/g, '/'),
             popularity: popularity,
             vegan: vegan,
             vegetarian: vegetarian,
             glutenFree: glutenFree,
+            servings: servings
         });
     }
     return reducedNonRelevance;

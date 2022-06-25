@@ -94,12 +94,13 @@ async function getRecipesPreview(recipeIds) {
 const extractPreviewRecipesData = (recipes) => {
     const reducedNonRelevance = [];
     for (let i = 0; i < recipes.length; i++) {
-        let { id, title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, glutenFree } = recipes[i];
+        let { id, title, readyInMinutes, image, servings, aggregateLikes, vegan, vegetarian, glutenFree } = recipes[i];
         reducedNonRelevance.push({
             id: id,
             title: title,
             readyInMinutes: readyInMinutes,
             image: image,
+            servings: servings,
             popularity: aggregateLikes,
             vegan: vegan,
             vegetarian: vegetarian,
