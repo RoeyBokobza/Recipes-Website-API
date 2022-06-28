@@ -75,7 +75,6 @@ router.get("/favorites", async (req, res, next) => {
     let favorite_recipes = {};
     const recipes_ids = await user_utils.getFavoriteRecipesIds(user_name);
     const results = await recipe_utils.getRecipesPreview(recipes_ids);
-    console.log(results)
     res.status(200).send(results);
   } catch (error) {
     next(error);
@@ -97,7 +96,6 @@ router.get("/my_recipes", async (req, res, next) => {
   try {
     const user_name = req.session.user_name;
     const myRecipes = await user_utils.getMyRecipes(user_name);
-    console.log(myRecipes);
     res.status(200).send(myRecipes);
   } catch (error) {
     next(error);
@@ -148,7 +146,6 @@ router.get("/my_family_recipes", async (req, res, next) => {
 
 router.post("/add_recipe", upload.single("image"), async (req, res, next) => {
   try {
-    console.log(req.file);
     const user_name = req.session.user_name;
     let recipe_details = {
       title: req.body.title,
@@ -171,7 +168,6 @@ router.post("/add_recipe", upload.single("image"), async (req, res, next) => {
 });
 
 router.get("/download", function (req, res) {
-  console.log(req.query.image);
   const file = req.query.image;
   res.download(file, req.query.image);
 });
