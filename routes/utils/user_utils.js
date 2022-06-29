@@ -39,7 +39,7 @@ async function getRecipeIngredients(id) {
 async function getRecipeInstructions(id) {
     let instructionsFromDb = await DButils.execQuery(`SELECT * FROM recipes_instrcutions WHERE recipe_id='${id}'`);
     instructionsFromDb.sort((a, b) => {
-        return a.recipe_id < b.recipe_id;
+        return a.recipe_id - b.recipe_id;
     });
     let instructions = [];
     for (let i = 0; i < instructionsFromDb.length; i++) {

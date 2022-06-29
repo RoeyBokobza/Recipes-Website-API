@@ -109,6 +109,7 @@ router.get("/my_recipe/:recipe_id", async (req, res, next) => {
       user_name,
       req.params.recipe_id
     );
+    console.log(myRecipes)
     res.status(200).send(myRecipes);
   } catch (error) {
     console.error(error);
