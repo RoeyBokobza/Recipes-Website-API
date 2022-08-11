@@ -12,10 +12,11 @@ router.get("/", (req, res) => res.send("im here"));
 router.get("/details/:recipeId", async (req, res, next) => {
   try {
     const recipe = await recipes_utils.getRecipeDetails(req.params.recipeId);
-    res.status(200).send(recipe);
     if (req.session && req.session.user_name) {
       user_utils.markAsWatched(req.session.user_name, req.params.recipeId);
     }
+    console.log(recipe)
+    res.status(200).send(recipe);
   } catch (error) {
     console.error(error);
     res.status(404).send("Recipe id: " + req.params.recipe_id + " not found!");
