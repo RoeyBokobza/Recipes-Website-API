@@ -19,13 +19,13 @@ async function getMyRecipes(user_name) {
 }
 
 
-async function getMyFamilyRecipes(user_name) {
-    let myRecipes = await DButils.execQuery(`SELECT * FROM user_family_recipes WHERE user_name='${user_name}'`);
-    if (myRecipes.length > 0) {
-        myRecipes = extractPreviewRecipesData(myRecipes);
-    }
-    return myRecipes;
-}
+// async function getMyFamilyRecipes(user_name) {
+//     let myRecipes = await DButils.execQuery(`SELECT * FROM user_family_recipes WHERE user_name='${user_name}'`);
+//     if (myRecipes.length > 0) {
+//         myRecipes = extractPreviewRecipesData(myRecipes);
+//     }
+//     return myRecipes;
+// }
 
 async function getRecipeIngredients(id) {
     let ingredientsFromDb = await DButils.execQuery(`SELECT * FROM recipes_ingredients WHERE recipe_id='${id}'`);

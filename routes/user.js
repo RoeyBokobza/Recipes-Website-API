@@ -4,6 +4,7 @@ const DButils = require("./utils/DButils");
 const user_utils = require("./utils/user_utils");
 const recipe_utils = require("./utils/recipes_utils");
 const multer = require("multer");
+const { json } = require("express/lib/response");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -108,7 +109,7 @@ router.get("/my_recipe/:recipe_id", async (req, res, next) => {
       user_name,
       req.params.recipe_id
     );
-    console.log(myRecipes)
+    
     res.status(200).send(myRecipes);
   } catch (error) {
     console.error(error);
@@ -118,17 +119,6 @@ router.get("/my_recipe/:recipe_id", async (req, res, next) => {
   }
 });
 
-router.get("/my_family_recipes", async (req, res, next) => {
-  const jsonData = require('../assets/family_recipes.json');
-  res.status(200).send(jsonData);
-  // try {
-  //   const user_name = req.session.user_name;
-  //   const myRecipes = await user_utils.getMyFamilyRecipes(user_name);
-  //   res.status(200).send(myRecipes);
-  // } catch (error) {
-  //   next(error);
-  // }
-});
 
 router.post("/add_recipe", upload.single("image"), async (req, res, next) => {
   try {

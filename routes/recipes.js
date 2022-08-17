@@ -15,7 +15,7 @@ router.get("/details/:recipeId", async (req, res, next) => {
     if (req.session && req.session.user_name) {
       user_utils.markAsWatched(req.session.user_name, req.params.recipeId);
     }
-    console.log(recipe)
+    
     res.status(200).send(recipe);
   } catch (error) {
     console.error(error);
@@ -42,6 +42,34 @@ router.get("/search", async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+});
+router.get("/my_family_recipes", async (req, res, next) => {
+  try {
+    const jsonData = require('../assets/family_recipes.json');
+    res.status(200).send([...jsonData]);
+  } catch (error) {
+    
+  }
+});
+
+router.get("/family_recipe/:recipeId", async (req, res, next) => {
+  try {
+    const jsonData = require('../assets/family_recipes.json');
+    for (i = 0; i < jsonData.length; i++) {
+      if (jsonData[i].id === parseInt(req.params.recipeId)) {
+        res.status(200).send(jsonData[i]);
+        return;
+      }
+    }
+    res.status(404).send("Recipe id: " + req.params.recipeId + " not found!");
+  } catch (error) {
+    
+  }
+});
+
+router.get("/download", function (req, res) {
+  const file = req.query.image;
+  res.download(file, req.query.image);
 });
 
 module.exports = router;

@@ -93,14 +93,4 @@ if (!fs.existsSync(imagesDir)){
   fs.mkdirSync(imagesDir);
 }
 
-// const server = app.listen(port, () => {
-//   console.log(`Server listen on port ${port}`);
-// });
-
-// process.on("SIGINT", function () {
-//   if (server) {
-//     server.close(() => console.log("server closed"));
-//   }
-//   process.exit();
-// });
 module.exports = app;
