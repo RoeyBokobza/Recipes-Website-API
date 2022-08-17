@@ -5,9 +5,9 @@ info:
   version: 1.0.1
 servers:
 # local:
-- url: "http://127.0.0.1:3000"
+# - url: "http://127.0.0.1:3000"
 # remote:
-# - url: "http://132.72.65.119"
+- url: "http://132.72.65.119"
   description: SwaggerHub API Auto Mocking hey
 tags:
 - name: users
@@ -79,6 +79,10 @@ paths:
       responses:
         "200":
           description: user's favorite recipes returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/recipe_preview'
         "401":
           description: user is not authorized
     post:
@@ -109,9 +113,9 @@ paths:
         "200":
           description: all favorite recipes returned
           content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/recipe_preview'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/recipe_preview'
         "401":
           description: user is not authorized
   /users/my_recipe/{recipeId}:
@@ -140,11 +144,10 @@ paths:
           description: user is not authorized
         "404":
           description: recipe id not found
-
-  /users/my_family_recipes:
+  /recipes/my_family_recipes:
     get:
       tags:
-      - users
+      - recipes
       summary: get all user family recipes
       description: |
         get all user family recipes
@@ -152,16 +155,16 @@ paths:
         "200":
           description: all family recipes returned
           content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/recipe_preview'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/family_recipe'
         "401":
           description: user is not authorized
 
-  /users/my_family_recipe/{recipeId}:
+  /recipes/family_recipe/{recipeId}:
     get:
       tags:
-      - users
+      - recipes
       summary: get my family recipe description by id
       description: get my family description by id
       parameters:
@@ -179,7 +182,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/recipe'
+                $ref: '#/components/schemas/family_recipe'
         "401":
           description: user is not authorized
         "404":
@@ -195,9 +198,9 @@ paths:
         "200":
           description: user's last watched recipes returned
           content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/recipe_preview'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/recipe_preview'
         "401":
           description: user is not authorized
   /users/add_recipe:
@@ -229,9 +232,9 @@ paths:
         "200":
           description: three random recipes returned
           content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/recipe_preview'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/recipe_preview'
         "404":
           description: no recipes found
   /recipes/details/{recipeId}:
@@ -335,6 +338,25 @@ paths:
           description: image return successfuly
         "404":
           description: image not found
+  /recipes/download:
+    get:
+      tags:
+      - recips
+      summary: download family recipe image
+      description: |
+        dwonload image
+      parameters:
+      - name: image
+        in: query
+        description: the image path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: image return successfuly
+        "404":
+          description: image not found
 components:
   schemas:
     recipe_preview:
@@ -413,6 +435,52 @@ components:
         servings:
           type: number
           description: how many dishes comes from this recipe
+    family_recipe:
+      required:
+      - name image readyInMinutes vegan vegetarian glutenFree ingredients instructions servings when recipeOwner
+      type: object
+      properties:
+        name:
+          type: string
+          description: recipe name
+          example: brownies
+        image:
+          type: string
+          description: recipe image-url
+          format: url
+          example: https://img.mako.co.il/2015/04/05/meat_balls_shakshuka_afik_c.jpg
+        readyInMinutes:
+          type: number
+          description: recipe procces time in minutes
+          example: 2
+        vegan:
+          type: boolean
+          description: if the recipe is vegan or not
+        vegetarian:
+          type: boolean
+          description: if the recipe is vegetarian or not
+        glutenFree:
+          type: boolean
+          description: if the recipe is gluten free
+        ingredients:
+          type: array
+          description: name of the ingredients and their quantity
+          items:
+            type: string
+        instructions:
+          type: string
+          description: recipe procces instructions
+          items:
+            type: string
+        servings:
+          type: number
+          description: how many dishes comes from this recipe
+        when:
+          type: string
+          description: when the dish in made
+        recipeOwner:
+          type: string
+          description: who is the owner of the recipe
     add_recipe:
       required:
       - title image readyInMinutes vegan vegetarian glutenFree ingredients instructions servings
