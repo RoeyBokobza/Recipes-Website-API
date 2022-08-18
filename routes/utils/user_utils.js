@@ -19,13 +19,13 @@ async function getMyRecipes(user_name) {
 }
 
 
-async function getMyFamilyRecipes(user_name) {
-    let myRecipes = await DButils.execQuery(`SELECT * FROM user_family_recipes WHERE user_name='${user_name}'`);
-    if (myRecipes.length > 0) {
-        myRecipes = extractPreviewRecipesData(myRecipes);
-    }
-    return myRecipes;
-}
+// async function getMyFamilyRecipes(user_name) {
+//     let myRecipes = await DButils.execQuery(`SELECT * FROM user_family_recipes WHERE user_name='${user_name}'`);
+//     if (myRecipes.length > 0) {
+//         myRecipes = extractPreviewRecipesData(myRecipes);
+//     }
+//     return myRecipes;
+// }
 
 async function getRecipeIngredients(id) {
     let ingredientsFromDb = await DButils.execQuery(`SELECT * FROM recipes_ingredients WHERE recipe_id='${id}'`);
@@ -36,15 +36,23 @@ async function getRecipeIngredients(id) {
     return ingredients;
 }
 
-async function getRecipe(user_name, id) {
-    let myRecipe = await DButils.execQuery(`SELECT * FROM user_recipes WHERE user_name='${user_name}' AND id=${id}`);
-    myRecipe.ingredients = await getRecipeIngredients(myRecipe[0].id);
-    return myRecipe;
+async function getRecipeInstructions(id) {
+    let instructionsFromDb = await DButils.execQuery(`SELECT * FROM recipes_instrcutions WHERE recipe_id='${id}'`);
+    instructionsFromDb.sort((a, b) => {
+        return a.recipe_id - b.recipe_id;
+    });
+    let instructions = [];
+    for (let i = 0; i < instructionsFromDb.length; i++) {
+        instructions.push(instructionsFromDb[i].instruction);
+    }
+    return instructions;
 }
 
-async function getFamilyRecipe(user_name, id) {
-    let myRecipe = await DButils.execQuery(`SELECT * FROM user_family_recipes WHERE user_name='${user_name}' AND id=${id}`);
-    myRecipe.ingredients = await getRecipeIngredients(myRecipe[0].id);
+async function getRecipe(user_name, id) {
+    let myRecipeResponse = await DButils.execQuery(`SELECT * FROM user_recipes WHERE user_name='${user_name}' AND id=${id}`);
+    let myRecipe = myRecipeResponse[0];
+    myRecipe.ingredients = await getRecipeIngredients(myRecipe.id);
+    myRecipe.instructions = await getRecipeInstructions(myRecipe.id);
     return myRecipe;
 }
 
@@ -54,7 +62,7 @@ async function getFavoriteRecipesIds(user_name) {
     for (let i = 0; i < favorites.length; i++) {
         recipes.push(favorites[i].recipe_id);
     }
-    return favorites;
+    return recipes;
 }
 
 async function getLastWatchedRecipesIds(user_name) {
@@ -67,30 +75,34 @@ async function getLastWatchedRecipesIds(user_name) {
 }
 
 async function addRecipeToDb(user_name, recipe) {
-    recipe.instructions = recipe.instructions.replace("'", "''");
     recipe.image = recipe.image.replace(/\\/g, "\\\\");
-    await DButils.execQuery(`INSERT INTO user_recipes(user_name, title, readyInMinutes, image, popularity, vegan, vegetarian, glutenFree, instructions, servings) VALUES ('${user_name}', '${recipe.title}', ${recipe.readyInMinutes}, '${recipe.image}', ${recipe.popularity}, ${recipe.vegan}, ${recipe.vegetarian}, ${recipe.glutenFree}, '${recipe.instructions}', ${recipe.servings})`);
+    await DButils.execQuery(`INSERT INTO user_recipes(user_name, title, readyInMinutes, image, popularity, vegan, vegetarian, glutenFree, servings) VALUES ('${user_name}', '${recipe.title}', ${recipe.readyInMinutes}, '${recipe.image}', ${recipe.popularity}, ${recipe.vegan}, ${recipe.vegetarian}, ${recipe.glutenFree}, ${recipe.servings})`);
     res = await DButils.execQuery(`SELECT MAX(id) AS id FROM user_recipes`);
     recipe.id = res[0].id;
     for (let i = 0; i < recipe.ingredients.length; i++) {
         ingredient = recipe.ingredients[i].replace("'", "''");
         await DButils.execQuery(`INSERT INTO recipes_ingredients VALUES (${recipe.id}, '${ingredient}')`);
     }
+    for (let i = 0; i < recipe.instructions.length; i++) {
+        instruction = recipe.instructions[i].replace("'", "''");
+        await DButils.execQuery(`INSERT INTO recipes_instrcutions(recipe_id, instruction) VALUES (${recipe.id}, '${instruction}')`);
+    }
 }
 
 const extractPreviewRecipesData = (recipes) => {
     const reducedNonRelevance = [];
     for (let i = 0; i < recipes.length; i++) {
-        let { id, title, readyInMinutes, image, popularity, vegan, vegetarian, glutenFree } = recipes[i];
+        let { id, title, readyInMinutes, image, popularity, vegan, vegetarian, glutenFree, servings } = recipes[i];
         reducedNonRelevance.push({
             id: id,
             title: title,
             readyInMinutes: readyInMinutes,
-            image: image,
+            image: image.replace(/\\/g, '/'),
             popularity: popularity,
             vegan: vegan,
             vegetarian: vegetarian,
             glutenFree: glutenFree,
+            servings: servings
         });
     }
     return reducedNonRelevance;
@@ -102,6 +114,4 @@ exports.markAsFavorite = markAsFavorite;
 exports.getFavoriteRecipesIds = getFavoriteRecipesIds;
 exports.getLastWatchedRecipesIds = getLastWatchedRecipesIds;
 exports.markAsWatched = markAsWatched
-exports.getMyFamilyRecipes = getMyFamilyRecipes;
 exports.getRecipe = getRecipe;
-exports.getFamilyRecipe = getFamilyRecipe;

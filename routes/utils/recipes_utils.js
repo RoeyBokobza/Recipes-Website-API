@@ -27,8 +27,12 @@ async function getRecipeInformation(recipe_id) {
 
 async function getRecipeDetails(recipe_id) {
     let recipe_info = await getRecipeInformation(recipe_id);
-    let { id, title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, glutenFree, extendedIngredients, instructions, servings } = recipe_info.data;
+    let { id, title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, glutenFree, extendedIngredients, analyzedInstructions, servings } = recipe_info.data;
     const ingredients = extractIngredients(extendedIngredients);
+    const instructions = [];
+    for(let instruction = 0; instruction < analyzedInstructions[0].steps.length; instruction++) {
+        instructions.push(analyzedInstructions[0].steps[instruction].step);
+    }
     return {
         id: id,
         title: title,
@@ -71,9 +75,9 @@ async function searchRecipesByName(title, number = 5, cuisine, diet, intolerance
             apiKey: process.env.spooncular_apiKey,
             addRecipeInformation: true,
             number: number,
-            cuisine: cuisine,
-            diet: diet,
-            intolerances: intolerances
+            cuisine: cuisine ? cuisine : "",
+            diet: diet ? diet : "",
+            intolerances: intolerances ? intolerances : ""
         }
     });
     return extractPreviewRecipesData(response.data.results);
@@ -94,7 +98,7 @@ async function getRecipesPreview(recipeIds) {
 const extractPreviewRecipesData = (recipes) => {
     const reducedNonRelevance = [];
     for (let i = 0; i < recipes.length; i++) {
-        let { id, title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, glutenFree } = recipes[i];
+        let { id, title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, glutenFree, servings } = recipes[i];
         reducedNonRelevance.push({
             id: id,
             title: title,
@@ -104,6 +108,7 @@ const extractPreviewRecipesData = (recipes) => {
             vegan: vegan,
             vegetarian: vegetarian,
             glutenFree: glutenFree,
+            servings
         });
     }
     return reducedNonRelevance;
