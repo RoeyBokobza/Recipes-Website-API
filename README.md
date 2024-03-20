@@ -12,8 +12,7 @@ Ensure you have Node.js installed on your computer. If not, you can download and
 
 Execute the following command to start the server:
 
-_node server_connection.js
-_
+_node server_connection.js_
 Open a web browser and go to localhost:3000 to access the REST API.
 
 Features
