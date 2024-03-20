@@ -2,23 +2,29 @@ var path = require("path");
 var app = require('./main');
 var https = require('https');
 var fs = require('fs');
+var http = require('http');
 
-var httpsOptions = {
-  key: fs.readFileSync(path.join(__dirname, "privkey.pem")),//server.key
-  cert: fs.readFileSync(path.join(__dirname, "fullchain.pem")),//server.cert
-}
+// var httpsOptions = {
+//   key: fs.readFileSync(path.join(__dirname, "privkey.pem")),//server.key
+//   cert: fs.readFileSync(path.join(__dirname, "fullchain.pem")),//server.cert
+// }
 
 /**
  * Get port from environment and store in Express.
  */
-var port = normalizePort(process.env.PORT || '443');
+// var port = normalizePort(process.env.PORT || '443');
+
+// app.set('port', port);
+var port = normalizePort(process.env.PORT || '3000'); // Use a non-privileged port for HTTP
 
 app.set('port', port);
+var server = http.createServer(app); // Use http here instead of https
+
 
 /**
  * Create HTTP server.
  */
-var server = https.createServer(httpsOptions, app);
+// var server = https.createServer(httpsOptions, app);
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -74,7 +80,9 @@ function onError(error) {
 /**
  * Event listener for HTTP server "listening" event.
  */
-server.address("https://liroey-recipes.cs.bgu.ac.il");
+// server.address("https://liroey-recipes.cs.bgu.ac.il");
+server.address("https://localhost:3000");
+
 function onListening() {
   var addr = server.address();
   var bind = typeof addr === 'string'

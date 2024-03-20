@@ -4,10 +4,6 @@ const DButils = require("./utils/DButils");
 const user_utils = require("./utils/user_utils");
 const recipe_utils = require("./utils/recipes_utils");
 const multer = require("multer");
-<<<<<<< HEAD
-=======
-const { json } = require("express/lib/response");
->>>>>>> f876d814497b950b5a797a32f608902f0489ae1c
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -113,10 +109,6 @@ router.get("/my_recipe/:recipe_id", async (req, res, next) => {
       user_name,
       req.params.recipe_id
     );
-<<<<<<< HEAD
-=======
-    
->>>>>>> f876d814497b950b5a797a32f608902f0489ae1c
     res.status(200).send(myRecipes);
   } catch (error) {
     console.error(error);
@@ -126,7 +118,6 @@ router.get("/my_recipe/:recipe_id", async (req, res, next) => {
   }
 });
 
-<<<<<<< HEAD
 router.get("/my_family_recipe/:recipe_id", async (req, res, next) => {
   try {
     const user_name = req.session.user_name;
@@ -158,12 +149,6 @@ router.post("/add_recipe", upload.single("image"), async (req, res, next) => {
     console.log(req.body)
     console.log(req.file);
     const user_name = req.session.user_name;
-=======
-
-router.post("/add_recipe", upload.single("image"), async (req, res, next) => {
-  try {
-    const user_name = req.session.user_name;
->>>>>>> f876d814497b950b5a797a32f608902f0489ae1c
     let recipe_details = {
       title: req.body.title,
       readyInMinutes: req.body.readyInMinutes,
@@ -185,10 +170,7 @@ router.post("/add_recipe", upload.single("image"), async (req, res, next) => {
 });
 
 router.get("/download", function (req, res) {
-<<<<<<< HEAD
   console.log(req.query.image);
-=======
->>>>>>> f876d814497b950b5a797a32f608902f0489ae1c
   const file = req.query.image;
   res.download(file, req.query.image);
 });

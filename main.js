@@ -15,8 +15,8 @@ app.use(express.json()); // parse application/json
 app.use(
   session({
     cookieName: "session", // the cookie key name
-    secret: process.env.COOKIE_SECRET, // the encryption key
-    // secret: "template", // the encryption key
+    // secret: process.env.COOKIE_SECRET, // the encryption key
+    secret: "template", // the encryption key
     duration: 24 * 60 * 60 * 1000, // expired after 20 sec
     activeDuration: 1000 * 60 * 5, // if expiresIn < activeDuration,
     cookie: {
@@ -28,15 +28,15 @@ app.use(
 app.use(express.urlencoded({ extended: false })); // parse application/x-www-form-urlencoded
 app.use(express.static(path.join(__dirname, "public"))); //To serve static files such as images, CSS files, and JavaScript files
 //local:
-// app.use(express.static(path.join(__dirname, "dist")));
+app.use(express.static(path.join(__dirname, "dist")));
 //remote:
-app.use(express.static(path.join(__dirname, '../assignment3-3-basic/dist')));
+// app.use(express.static(path.join(__dirname, '../RECIPE-WEBSITE-BACKEND/dist')));
 app.get("/",function(req,res)
 {
   //remote:
-  res.sendFile(path.join(__dirname, '../assignment3-3-basic/dist/index.html'));
+  // res.sendFile(path.join(__dirname, '../RECIPE-WEBSITE-BACKEND/dist/index.html'));
   //local:
-  // res.sendFile(__dirname+"/index.html");
+  res.sendFile(__dirname+"/index.html");
 
 });
 
@@ -51,7 +51,7 @@ const corsConfig = {
 app.use(cors(corsConfig));
 app.options("*", cors(corsConfig));
 
-var port = process.env.PORT || "80"; //local=3000 remote=80
+var port = process.env.PORT || "3000"; //local=3000 remote=80
 //#endregion
 const user = require("./routes/user");
 const recipes = require("./routes/recipes");
